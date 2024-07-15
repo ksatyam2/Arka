@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Polygon Creation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+        .button-container button {
+            padding: 10px;
+            background-color: #7434db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button id="completeButton">Complete Polygon</button>
+        <button id="copyButton">Copy</button>
+        <button id="resetButton">Reset</button>
+    </div>
+    <script type="module">
+        
+        import * as THREE from './node_modules/three/build/three.module.js';
+        import { initScene, render } from './app.js';
+        import { createVertex, completePolygon, startCopyPolygon, resetScene } from './polygon.js';
+
+        
+        const { scene, camera, renderer } = initScene();
+
+        
+        document.getElementById('completeButton').addEventListener('click', () => {
+            completePolygon(scene);
+        });
+
+        
+        document.getElementById('copyButton').addEventListener('click', () => {
+            startCopyPolygon(scene, camera);
+        });
+
+        
+        document.getElementById('resetButton').addEventListener('click', () => {
+            resetScene(scene);
+        });
+
+        
+        document.addEventListener('click', (event) => {
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(scene.children);
+
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                createVertex(point, scene);
+            }
+        });
+
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+        animate();
+    </script>
+</body>
+</html>
